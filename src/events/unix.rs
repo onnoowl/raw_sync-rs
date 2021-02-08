@@ -21,6 +21,7 @@ use crate::events::*;
 use crate::locks::*;
 use crate::{Result, Timeout};
 
+#[repr(C)]
 struct InnerEvent {
     cond: pthread_cond_t,
     auto_reset: u8,

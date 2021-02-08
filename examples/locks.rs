@@ -53,7 +53,7 @@ fn main() -> Result<()> {
 
     test_mutex(mem.as_mut_ptr())?;
 
-    #[cfg(not(windows))]
+    #[cfg(target_os = "linux")]
     test_rwlock(mem.as_mut_ptr())?;
 
     Ok(())
@@ -82,7 +82,7 @@ fn test_mutex(mem: *mut u8) -> Result<()> {
     Ok(())
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
 fn test_rwlock(mem: *mut u8) -> Result<()> {
     info!("-----------");
     info!("RwLock");
