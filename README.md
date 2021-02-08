@@ -1,3 +1,7 @@
+# Fork Info (onnoowl)
+
+This fork adds #[repr(C)] to InnerEvent, and re-writes Mutexes to use #[repr(C)] structs instead of pointer/alignment math.
+
 # raw_sync
 [![Build Status](https://github.com/elast0ny/raw_sync-rs/workflows/build/badge.svg)](https://github.com/elast0ny/raw_sync-rs/actions?query=workflow%3Abuild)
 [![crates.io](https://img.shields.io/crates/v/raw_sync.svg)](https://crates.io/crates/raw_sync)
