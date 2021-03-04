@@ -33,10 +33,10 @@ use libc::{
 };
 //use log::*;
 
-extern "C" {
-    fn pthread_rwlock_timedrdlock(attr: *mut pthread_rwlock_t, host: *const timespec) -> i32;
-    fn pthread_rwlock_timedwrlock(attr: *mut pthread_rwlock_t, host: *const timespec) -> i32;
-}
+// extern "C" {
+//     fn pthread_rwlock_timedrdlock(attr: *mut pthread_rwlock_t, host: *const timespec) -> i32;
+//     fn pthread_rwlock_timedwrlock(attr: *mut pthread_rwlock_t, host: *const timespec) -> i32;
+// }
 
 cfg_if::cfg_if! {
     if #[cfg(target_os = "macos")] {
@@ -198,6 +198,8 @@ impl LockImpl for Mutex {
     }
 }
 
+/// NOTE: Timed rw-lock has been disabled due to compatibility issues on mac-os.
+/// The timeout is ignored
 pub struct RwLock {
     ptr: *mut pthread_rwlock_t,
     data: UnsafeCell<*mut u8>,
@@ -280,13 +282,15 @@ impl LockImpl for RwLock {
         Ok(LockGuard::new(self))
     }
 
-    fn try_lock(&self, timeout: Timeout) -> Result<LockGuard<'_>> {
-        let timespec: timespec = match timeout {
-            Timeout::Infinite => return self.lock(),
-            Timeout::Val(d) => abs_timespec_from_duration(d),
-        };
+    /// NOTE: Timed rw-lock has been disabled due to compatibility issues on mac-os.
+    /// The timeout is ignored
+    fn try_lock(&self, _timeout: Timeout) -> Result<LockGuard<'_>> {
+        // let timespec: timespec = match timeout {
+        //     Timeout::Infinite => return self.lock(),
+        //     Timeout::Val(d) => abs_timespec_from_duration(d),
+        // };
 
-        let res = unsafe { pthread_rwlock_timedwrlock(self.ptr, &timespec) };
+        let res = unsafe { pthread_rwlock_wrlock(self.ptr) };
         //trace!("pthread_rwlock_timedwrlock({:p})", self.ptr);
         if res != 0 {
             return Err(From::from(format!(
@@ -311,13 +315,15 @@ impl LockImpl for RwLock {
         Ok(ReadLockGuard::new(self))
     }
 
-    fn try_rlock(&self, timeout: Timeout) -> Result<ReadLockGuard<'_>> {
-        let timespec: timespec = match timeout {
-            Timeout::Infinite => return self.rlock(),
-            Timeout::Val(d) => abs_timespec_from_duration(d),
-        };
+    /// NOTE: Timed rw-lock has been disabled due to compatibility issues on mac-os.
+    /// The timeout is ignored
+    fn try_rlock(&self, _timeout: Timeout) -> Result<ReadLockGuard<'_>> {
+        // let timespec: timespec = match timeout {
+        //     Timeout::Infinite => return self.rlock(),
+        //     Timeout::Val(d) => abs_timespec_from_duration(d),
+        // };
 
-        let res = unsafe { pthread_rwlock_timedrdlock(self.ptr, &timespec) };
+        let res = unsafe { pthread_rwlock_rdlock(self.ptr) };
         //trace!("pthread_rwlock_timedrdlock({:p})", self.ptr);
         if res != 0 {
             return Err(From::from(format!(
